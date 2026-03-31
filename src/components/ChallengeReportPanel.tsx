@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 
-// Adjustment payload — aligns with SUP-37 schema design
+// Adjustment payload — aligns with SUP-37 schema (ValuationAdjustmentPayload)
 export interface ValuationAdjustment {
   roadAccess: 1 | 2 | 3 | 4 | 5;
-  wetlandsPercent: 0 | 10 | 25 | 50;
-  topography: "flat" | "gentle" | "rolling" | "steep" | "very_steep";
+  wetlandsPercentage: 0 | 10 | 25 | 50;
+  topography: 1 | 2 | 3 | 4 | 5;
   septic: "pass" | "fail" | "unknown";
   floodZone: "out" | "partial" | "in";
   utilities: {
@@ -15,8 +15,10 @@ export interface ValuationAdjustment {
     sewer: boolean;
     gas: boolean;
   };
-  timber: boolean;
-  minerals: boolean;
+  timberMinerals: {
+    timber: boolean;
+    minerals: boolean;
+  };
   zoningConfirmed: boolean;
 }
 
@@ -44,15 +46,15 @@ const TOPOGRAPHY_OPTIONS: Array<{
   value: ValuationAdjustment["topography"];
   label: string;
 }> = [
-  { value: "flat", label: "Flat" },
-  { value: "gentle", label: "Gentle slope" },
-  { value: "rolling", label: "Rolling" },
-  { value: "steep", label: "Steep" },
-  { value: "very_steep", label: "Very steep" },
+  { value: 1, label: "Flat" },
+  { value: 2, label: "Gentle slope" },
+  { value: 3, label: "Moderate slope" },
+  { value: 4, label: "Steep" },
+  { value: 5, label: "Very steep" },
 ];
 
 const WETLAND_OPTIONS: Array<{
-  value: ValuationAdjustment["wetlandsPercent"];
+  value: ValuationAdjustment["wetlandsPercentage"];
   label: string;
 }> = [
   { value: 0, label: "None" },
@@ -63,13 +65,12 @@ const WETLAND_OPTIONS: Array<{
 
 const DEFAULT_ADJUSTMENT: ValuationAdjustment = {
   roadAccess: 3,
-  wetlandsPercent: 0,
-  topography: "flat",
+  wetlandsPercentage: 0,
+  topography: 1,
   septic: "unknown",
   floodZone: "out",
   utilities: { electric: false, water: false, sewer: false, gas: false },
-  timber: false,
-  minerals: false,
+  timberMinerals: { timber: false, minerals: false },
   zoningConfirmed: false,
 };
 
@@ -218,7 +219,7 @@ export default function ChallengeReportPanel({
     setResult(null);
 
     try {
-      const res = await fetch(`/api/reports/${reportId}/adjust`, {
+      const res = await fetch(`/api/reports/${reportId}/adjustments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(adj),
@@ -297,9 +298,9 @@ export default function ChallengeReportPanel({
         <div>
           <SectionLabel>Wetlands Coverage</SectionLabel>
           <RadioGroup
-            value={adj.wetlandsPercent}
+            value={adj.wetlandsPercentage}
             options={WETLAND_OPTIONS}
-            onChange={(v) => updateAdj({ wetlandsPercent: v })}
+            onChange={(v) => updateAdj({ wetlandsPercentage: v })}
           />
         </div>
 
@@ -368,13 +369,23 @@ export default function ChallengeReportPanel({
           <SectionLabel>Additional Characteristics</SectionLabel>
           <div className="flex flex-wrap gap-2">
             <ToggleCheckbox
-              checked={adj.timber}
-              onChange={(v) => updateAdj({ timber: v })}
+              checked={adj.timberMinerals.timber}
+              onChange={(v) =>
+                setAdj((prev) => ({
+                  ...prev,
+                  timberMinerals: { ...prev.timberMinerals, timber: v },
+                }))
+              }
               label="Timber value"
             />
             <ToggleCheckbox
-              checked={adj.minerals}
-              onChange={(v) => updateAdj({ minerals: v })}
+              checked={adj.timberMinerals.minerals}
+              onChange={(v) =>
+                setAdj((prev) => ({
+                  ...prev,
+                  timberMinerals: { ...prev.timberMinerals, minerals: v },
+                }))
+              }
               label="Mineral rights"
             />
             <ToggleCheckbox
