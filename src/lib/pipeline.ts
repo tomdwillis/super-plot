@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { query } from "@/lib/db";
 
 interface ReportOrder {
@@ -8,50 +9,75 @@ interface ReportOrder {
   input_type: "apn" | "address";
 }
 
-interface ParcelData {
-  parcelId: string;
-  apn: string;
-  address: string;
-  lat?: number;
-  lng?: number;
-}
+// M-2: Zod schemas for pipeline responses
+const ParcelDataSchema = z.object({
+  parcelId: z.string(),
+  apn: z.string(),
+  address: z.string(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+});
 
-interface PipelineResult {
-  pdfUrl: string;
-  title: string;
-}
+const PipelineResultSchema = z.object({
+  pdfUrl: z
+    .string()
+    .url()
+    .regex(/^https:\/\/storage\.superplot\.com\/reports\//, {
+      message: "pdf_url must be an HTTPS URL matching https://storage.superplot.com/reports/*",
+    }),
+  title: z.string(),
+});
+
+type ParcelData = z.infer<typeof ParcelDataSchema>;
+type PipelineResult = z.infer<typeof PipelineResultSchema>;
+
+// M-3: Parcel input validation regexes
+const APN_PATTERN = /^[\d-]+$/;
 
 async function resolveParcel(
   parcelInput: string,
   inputType: "apn" | "address"
 ): Promise<ParcelData> {
+  // M-3: Validate input before passing to external services
+  if (inputType === "apn") {
+    if (!APN_PATTERN.test(parcelInput) || parcelInput.length > 30) {
+      throw new Error("Invalid APN: must contain only digits and hyphens and be ≤ 30 characters");
+    }
+  } else {
+    if (!parcelInput || parcelInput.length > 200) {
+      throw new Error("Invalid address: must be a non-empty string ≤ 200 characters");
+    }
+  }
+
   const geocodeUrl = process.env.GEOCODE_SERVICE_URL;
   const parcelLookupUrl = process.env.PARCEL_LOOKUP_URL;
 
   if (inputType === "apn") {
     if (!parcelLookupUrl) {
       // Stub: return synthetic parcel until APN service is wired
-      return {
+      const stub = {
         parcelId: `parcel-${parcelInput}`,
         apn: parcelInput,
         address: `Parcel ${parcelInput}`,
       };
+      return ParcelDataSchema.parse(stub);
     }
     const res = await fetch(`${parcelLookupUrl}?apn=${encodeURIComponent(parcelInput)}`);
     if (!res.ok) throw new Error(`APN lookup failed: ${res.status}`);
-    return res.json();
+    return ParcelDataSchema.parse(await res.json());
   } else {
     if (!geocodeUrl) {
       // Stub: return synthetic parcel until geocode service is wired
-      return {
+      const stub = {
         parcelId: `parcel-${Buffer.from(parcelInput).toString("base64").slice(0, 12)}`,
         apn: "UNKNOWN",
         address: parcelInput,
       };
+      return ParcelDataSchema.parse(stub);
     }
     const res = await fetch(`${geocodeUrl}?address=${encodeURIComponent(parcelInput)}`);
     if (!res.ok) throw new Error(`Geocode failed: ${res.status}`);
-    return res.json();
+    return ParcelDataSchema.parse(await res.json());
   }
 }
 
@@ -65,10 +91,10 @@ async function runReportPipeline(
   if (!pipelineServiceUrl) {
     // Stub: placeholder PDF URL until pipeline service is wired
     const placeholderUrl = `https://storage.superplot.com/reports/${orderId}/report.pdf`;
-    return {
+    return PipelineResultSchema.parse({
       pdfUrl: placeholderUrl,
       title: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Report — ${parcel.address}`,
-    };
+    });
   }
 
   const res = await fetch(`${pipelineServiceUrl}/generate`, {
@@ -82,7 +108,8 @@ async function runReportPipeline(
     throw new Error(`Pipeline service error ${res.status}: ${text}`);
   }
 
-  return res.json();
+  // M-2: Validate pipeline response before storing
+  return PipelineResultSchema.parse(await res.json());
 }
 
 export async function processGeneratingOrders(): Promise<{

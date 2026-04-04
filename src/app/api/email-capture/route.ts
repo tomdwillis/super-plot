@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { query } from "@/lib/db";
 import { checkRateLimit } from "@/lib/ratelimit";
+
+const EmailSchema = z.object({ email: z.string().email() });
 
 export async function POST(req: NextRequest) {
   const rateLimitResponse = await checkRateLimit(req, { limit: 10, windowSecs: 60 });
   if (rateLimitResponse) return rateLimitResponse;
 
   try {
-    const { email } = await req.json();
-
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "email is required" }, { status: 400 });
+    const body = await req.json();
+    const parsed = EmailSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
     }
+    const { email } = parsed.data;
 
     // Upsert — idempotent if they sign up multiple times
     await query(

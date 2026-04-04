@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { query } from "@/lib/db";
 import { checkRateLimit } from "@/lib/ratelimit";
+
+const EmailQuerySchema = z.string().email();
 
 export async function GET(req: NextRequest) {
   const rateLimitResponse = await checkRateLimit(req, { limit: 20, windowSecs: 60 });
   if (rateLimitResponse) return rateLimitResponse;
 
-  const email = req.nextUrl.searchParams.get("email");
-
-  if (!email) {
-    return NextResponse.json({ error: "email is required" }, { status: 400 });
+  const emailParam = req.nextUrl.searchParams.get("email");
+  const parsed = EmailQuerySchema.safeParse(emailParam);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
   }
+  const email = parsed.data;
 
   try {
     const reports = await query(

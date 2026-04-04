@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { stripe, TIER_PRICES } from "@/lib/stripe";
 import { query } from "@/lib/db";
 import { checkRateLimit } from "@/lib/ratelimit";
+
+const CheckoutSchema = z.object({
+  tier: z.string().min(1),
+  parcelInput: z.string().min(1),
+  inputType: z.string().default("address"),
+  email: z.string().email(),
+});
 
 export async function POST(req: NextRequest) {
   const rateLimitResponse = await checkRateLimit(req, { limit: 5, windowSecs: 60 });
@@ -9,14 +17,13 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { tier, parcelInput, inputType, email } = body;
-
-    if (!tier || !parcelInput || !email) {
-      return NextResponse.json(
-        { error: "tier, parcelInput, and email are required" },
-        { status: 400 }
-      );
+    const parsed = CheckoutSchema.safeParse(body);
+    if (!parsed.success) {
+      const emailError = parsed.error.issues.find((i) => i.path.includes("email"));
+      const error = emailError ? "Invalid email format" : "tier, parcelInput, and email are required";
+      return NextResponse.json({ error }, { status: 400 });
     }
+    const { tier, parcelInput, inputType, email } = parsed.data;
 
     const tierConfig = TIER_PRICES[tier];
     if (!tierConfig || tierConfig.cents === 0) {
