@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import ChallengeReportPanel from "@/components/ChallengeReportPanel";
+import WilcoLandOfferCTA from "@/components/WilcoLandOfferCTA";
 
 type ReportStatus = "pending" | "generating" | "ready" | "failed";
 type ReportTier = "free" | "basic" | "professional" | "premium";
@@ -245,6 +246,14 @@ export default function DashboardPage() {
                               Challenge this valuation →
                             </button>
                           )}
+                          <WilcoLandOfferCTA
+                            reportId={report.id}
+                            parcelApn={
+                              report.input_type === "apn"
+                                ? report.parcel_input
+                                : undefined
+                            }
+                          />
                         </div>
                       )}
                     </div>
