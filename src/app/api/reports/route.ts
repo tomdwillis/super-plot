@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function GET(req: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(req, { limit: 20, windowSecs: 60 });
+  if (rateLimitResponse) return rateLimitResponse;
+
   const email = req.nextUrl.searchParams.get("email");
 
   if (!email) {

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(req, { limit: 10, windowSecs: 60 });
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const { email } = await req.json();
 

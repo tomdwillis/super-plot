@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe, TIER_PRICES } from "@/lib/stripe";
 import { query } from "@/lib/db";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(req, { limit: 5, windowSecs: 60 });
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const body = await req.json();
     const { tier, parcelInput, inputType, email } = body;
@@ -15,8 +19,8 @@ export async function POST(req: NextRequest) {
     }
 
     const tierConfig = TIER_PRICES[tier];
-    if (!tierConfig) {
-      return NextResponse.json({ error: "Invalid report tier" }, { status: 400 });
+    if (!tierConfig || tierConfig.cents === 0) {
+      return NextResponse.json({ error: "Invalid report tier for checkout" }, { status: 400 });
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

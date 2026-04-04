@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processGeneratingOrders } from "@/lib/pipeline";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 /**
  * POST /api/pipeline/process-orders
@@ -12,6 +13,9 @@ import { processGeneratingOrders } from "@/lib/pipeline";
  * Protected by PIPELINE_SECRET bearer token.
  */
 export async function POST(req: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(req, { limit: 10, windowSecs: 60 });
+  if (rateLimitResponse) return rateLimitResponse;
+
   const secret = process.env.PIPELINE_SECRET;
   if (!secret) {
     console.error("[process-orders] PIPELINE_SECRET is not set — refusing all requests");
