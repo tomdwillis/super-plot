@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { query } from "@/lib/db";
 import { processGeneratingOrders } from "@/lib/pipeline";
+import { generateMagicToken } from "@/lib/auth";
+import { sendMagicLinkEmail } from "@/lib/email";
 import Stripe from "stripe";
 
 // Stripe requires raw body for signature verification
@@ -60,6 +62,20 @@ export async function POST(req: NextRequest) {
       processGeneratingOrders().catch((err) =>
         console.error("[webhook] Pipeline trigger failed:", err)
       );
+
+      // Send magic link so the purchaser can access their report
+      if (email) {
+        try {
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+          const token = await generateMagicToken(email);
+          const magicLinkUrl = `${appUrl}/api/auth/magic-link?token=${token}`;
+          await sendMagicLinkEmail(email, magicLinkUrl);
+          console.log(`[webhook] Magic link sent to ${email}`);
+        } catch (emailErr) {
+          console.error("[webhook] Magic link send failed:", emailErr);
+          // Non-fatal: report is still being processed
+        }
+      }
     } catch (err) {
       console.error("Webhook: DB update failed:", err);
       // Return 200 anyway so Stripe doesn't retry; alert should fire from DB monitoring
