@@ -13,11 +13,13 @@ import { processGeneratingOrders } from "@/lib/pipeline";
  */
 export async function POST(req: NextRequest) {
   const secret = process.env.PIPELINE_SECRET;
-  if (secret) {
-    const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!secret) {
+    console.error("[process-orders] PIPELINE_SECRET is not set — refusing all requests");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const auth = req.headers.get("authorization");
+  if (auth !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {

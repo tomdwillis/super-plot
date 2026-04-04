@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   try {
     const reports = await query(
       `SELECT id, email, tier, parcel_input, input_type, status, title, pdf_url,
-              price_cents, stripe_payment_intent_id, created_at, updated_at
+              price_cents, created_at, updated_at
        FROM report_orders
        WHERE email = $1
        ORDER BY created_at DESC
