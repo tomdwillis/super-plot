@@ -150,6 +150,12 @@ export default function LeadsDashboard() {
               </span>
             </label>
             <a
+              href="/admin/analytics"
+              className="text-sm text-brand-600 hover:text-brand-700 font-medium"
+            >
+              Analytics →
+            </a>
+            <a
               href="/dashboard"
               className="text-sm text-gray-500 hover:text-gray-700"
             >
