@@ -5,30 +5,30 @@ import { useSearchParams } from "next/navigation";
 
 const TIERS = [
   {
-    id: "basic",
-    name: "Basic",
-    price: 29,
-    priceDisplay: "$29",
-    description: "Essential parcel data for quick screening.",
+    id: "free",
+    name: "Free",
+    price: 0,
+    priceDisplay: "Free",
+    badge: "Start Here",
+    description: "Basic parcel data — no credit card required.",
     turnaround: "~2 minutes",
     features: [
       "APN, ownership & zoning",
       "Acreage & lot dimensions",
       "County assessed value",
-      "Flood zone & wetland flags",
-      "Access & utility notes",
+      "Flood zone flag",
     ],
   },
   {
-    id: "professional",
-    name: "Professional",
-    price: 59,
-    priceDisplay: "$59",
+    id: "standard",
+    name: "Standard",
+    price: 29,
+    priceDisplay: "$29",
     popular: true,
-    description: "Full intelligence for active deal evaluation.",
+    description: "Full intelligence for understanding your property's value.",
     turnaround: "~5 minutes",
     features: [
-      "Everything in Basic",
+      "Everything in Free",
       "Comparable sales analysis",
       "Market value estimate",
       "Environmental risk summary",
@@ -39,17 +39,17 @@ const TIERS = [
   {
     id: "premium",
     name: "Premium",
-    price: 99,
-    priceDisplay: "$99",
-    description: "Comprehensive due diligence for serious buyers.",
+    price: 49,
+    priceDisplay: "$49",
+    description: "Complete property insights for confident decisions.",
     turnaround: "~10 minutes",
     features: [
-      "Everything in Professional",
+      "Everything in Standard",
       "Full valuation model",
       "Development feasibility analysis",
       "Title chain summary",
       "Infrastructure cost estimates",
-      "Investment thesis memo",
+      "Property insights summary",
     ],
   },
 ];
@@ -61,7 +61,7 @@ function OrderForm() {
   const [step, setStep] = useState<Step>("parcel");
   const [parcelInput, setParcelInput] = useState("");
   const [inputType, setInputType] = useState<"apn" | "address">("apn");
-  const [selectedTier, setSelectedTier] = useState<string>("professional");
+  const [selectedTier, setSelectedTier] = useState<string>("standard");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +72,33 @@ function OrderForm() {
       setSelectedTier(tier);
     }
   }, [searchParams]);
+
+  async function handleFreeReport() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/reports/free", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          parcel_input: parcelInput,
+          input_type: inputType,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create free report");
+      }
+
+      const { reportId } = await res.json();
+      window.location.href = `/dashboard?email=${encodeURIComponent(email)}&new=${reportId}`;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  }
 
   async function handleCheckout() {
     setLoading(true);
@@ -101,7 +128,16 @@ function OrderForm() {
     }
   }
 
+  function handleSubmit() {
+    if (selectedTier === "free") {
+      handleFreeReport();
+    } else {
+      handleCheckout();
+    }
+  }
+
   const tier = TIERS.find((t) => t.id === selectedTier)!;
+  const isFree = selectedTier === "free";
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-12">
@@ -247,9 +283,14 @@ function OrderForm() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-gray-900">{t.name}</span>
+                          {t.badge && (
+                            <span className="text-xs bg-green-100 text-green-700 font-semibold px-2 py-0.5 rounded-full">
+                              {t.badge}
+                            </span>
+                          )}
                           {t.popular && (
                             <span className="text-xs bg-brand-100 text-brand-700 font-semibold px-2 py-0.5 rounded-full">
-                              Popular
+                              Most Popular
                             </span>
                           )}
                         </div>
@@ -294,7 +335,9 @@ function OrderForm() {
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Almost done</h2>
               <p className="text-gray-500 text-sm mb-6">
-                Review your order and enter your email to receive the report.
+                {isFree
+                  ? "Enter your email to receive your free report."
+                  : "Review your order and enter your email to receive the report."}
               </p>
 
               {/* Order summary */}
@@ -354,24 +397,28 @@ function OrderForm() {
                   ← Back
                 </button>
                 <button
-                  onClick={handleCheckout}
+                  onClick={handleSubmit}
                   disabled={!email || loading}
                   className="flex-1 bg-brand-600 hover:bg-brand-700 disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
                       <span className="animate-spin">⟳</span>
-                      Redirecting…
+                      {isFree ? "Generating…" : "Redirecting…"}
                     </>
+                  ) : isFree ? (
+                    <>Get Free Report →</>
                   ) : (
                     <>Pay {tier.priceDisplay} →</>
                   )}
                 </button>
               </div>
 
-              <p className="text-xs text-center text-gray-400 mt-4">
-                Secured by Stripe. Your payment info is never stored on our servers.
-              </p>
+              {!isFree && (
+                <p className="text-xs text-center text-gray-400 mt-4">
+                  Secured by Stripe. Your payment info is never stored on our servers.
+                </p>
+              )}
             </div>
           )}
         </div>

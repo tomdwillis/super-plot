@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Super Plot — Vacant Land Intelligence",
   description:
-    "Instant property intelligence reports for vacant land investors. Know before you buy.",
+    "Instant property intelligence reports for vacant land owners. Know what your land is worth.",
 };
 
 export default function RootLayout({

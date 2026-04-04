@@ -4,24 +4,26 @@ import { useState } from "react";
 
 const TIERS = [
   {
-    name: "Basic",
-    price: "$29",
-    description: "Essential parcel data for quick screening.",
+    id: "free",
+    name: "Free",
+    price: "Free",
+    badge: "Start Here",
+    description: "Basic parcel data — no credit card required.",
     features: [
       "APN, ownership & zoning",
       "Acreage & lot dimensions",
       "County assessed value",
-      "Flood zone & wetland flags",
-      "Access & utility notes",
+      "Flood zone flag",
     ],
   },
   {
-    name: "Professional",
-    price: "$59",
+    id: "standard",
+    name: "Standard",
+    price: "$29",
     popular: true,
-    description: "Full intelligence for active deal evaluation.",
+    description: "Full intelligence for understanding your property's value.",
     features: [
-      "Everything in Basic",
+      "Everything in Free",
       "Comparable sales analysis",
       "Market value estimate",
       "Environmental risk summary",
@@ -30,16 +32,17 @@ const TIERS = [
     ],
   },
   {
+    id: "premium",
     name: "Premium",
-    price: "$99",
-    description: "Comprehensive due diligence for serious buyers.",
+    price: "$49",
+    description: "Complete property insights for confident decisions.",
     features: [
-      "Everything in Professional",
+      "Everything in Standard",
       "Full valuation model",
       "Development feasibility analysis",
       "Title chain summary",
       "Infrastructure cost estimates",
-      "Investment thesis memo",
+      "Property insights summary",
     ],
   },
 ];
@@ -47,21 +50,21 @@ const TIERS = [
 const TESTIMONIALS = [
   {
     quote:
-      "I used to spend 3 hours per parcel just gathering basic data. Super Plot gives me a Professional report in minutes. It's changed how I screen deals.",
+      "I inherited 40 acres and had no idea what it was worth. Super Plot gave me a full report in minutes — comps, zoning, everything. I finally feel informed.",
     author: "Mark T.",
-    role: "Land investor, Texas",
+    role: "Landowner, Texas",
   },
   {
     quote:
-      "The environmental and flood data alone saved me from a $200K mistake on a parcel I almost closed on. Worth every penny.",
+      "The environmental and flood data showed me my property was in better shape than I thought. I used the report to negotiate a higher sale price.",
     author: "Sarah K.",
-    role: "Acquisitions, Western States Land Co.",
+    role: "Property owner, Oregon",
   },
   {
     quote:
-      "I run 20–30 preliminary screens a week. The Basic tier is perfect — fast, cheap, and tells me whether to keep looking.",
+      "I own several rural parcels and needed quick valuations on all of them. The Basic tier is perfect — fast, affordable, and gives me what I need to make decisions.",
     author: "James R.",
-    role: "Wholesale land investor",
+    role: "Landowner, Arizona",
   },
 ];
 
@@ -93,15 +96,15 @@ export default function Home() {
       <section className="bg-gradient-to-b from-brand-50 to-white px-6 py-24 text-center">
         <div className="max-w-4xl mx-auto">
           <div className="inline-block bg-brand-100 text-brand-700 text-sm font-semibold px-3 py-1 rounded-full mb-6">
-            Now in beta — join 200+ land investors
+            Now in beta — join 200+ landowners
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-            Know everything about a vacant parcel{" "}
-            <span className="text-brand-600">before you make an offer.</span>
+            Know exactly what your land is worth{" "}
+            <span className="text-brand-600">before you make a decision.</span>
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Super Plot delivers instant property intelligence reports for vacant land — ownership,
-            valuation, environmental risk, zoning, and more. From $29 per report.
+            Super Plot delivers instant property intelligence reports for your vacant land — ownership,
+            valuation, environmental risk, zoning, and more. Free basic report, paid tiers from $29.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -118,7 +121,7 @@ export default function Home() {
             </a>
           </div>
           <p className="mt-4 text-sm text-gray-400">
-            No account required for Basic reports. Results in under 5 minutes.
+            Free basic report — no credit card required. Results in under 5 minutes.
           </p>
         </div>
       </section>
@@ -145,7 +148,7 @@ export default function Home() {
                 step: "2",
                 icon: "🔍",
                 title: "Choose your tier",
-                desc: "Select Basic ($29), Professional ($59), or Premium ($99) based on your needs.",
+                desc: "Start free, or unlock full intelligence with Standard ($29) or Premium ($49).",
               },
               {
                 step: "3",
@@ -162,6 +165,125 @@ export default function Home() {
                 <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Sample Report Preview */}
+      <section className="bg-gray-50 px-6 py-20">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
+            See what&apos;s in a Super Plot report
+          </h2>
+          <p className="text-center text-gray-500 mb-12 max-w-xl mx-auto">
+            Every report is built from live county, environmental, and market data — then distilled
+            into a clear, actionable PDF.
+          </p>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Left: simulated report page */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center text-lg">
+                  🗺️
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 text-sm">Property Intelligence Report</p>
+                  <p className="text-xs text-gray-400">Super Plot — Generated Apr 2026</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="border-b border-gray-100 pb-3">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                    Parcel
+                  </p>
+                  <p className="text-sm font-medium text-gray-900">
+                    APN 087-230-015 &middot; Lassen County, CA
+                  </p>
+                  <p className="text-xs text-gray-500">40.2 acres &middot; Agricultural zoning (A-1)</p>
+                </div>
+                <div className="border-b border-gray-100 pb-3">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                    Market Valuation
+                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-extrabold text-brand-600">$48,500</span>
+                    <span className="text-xs text-gray-400">estimated market value</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Range: $38,000 — $62,000 &middot; Based on 12 comparable sales
+                  </p>
+                </div>
+                <div className="border-b border-gray-100 pb-3">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                    Environmental
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    <span className="bg-green-50 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                      No flood zone
+                    </span>
+                    <span className="bg-green-50 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                      No wetlands
+                    </span>
+                    <span className="bg-yellow-50 text-yellow-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                      Moderate fire risk
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                    Access & Utilities
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Paved road access &middot; Electric at lot line &middot; Well required &middot;
+                    Septic required
+                  </p>
+                </div>
+              </div>
+              {/* Faded overlay at bottom to suggest more content */}
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" />
+            </div>
+
+            {/* Right: report highlights list */}
+            <div className="flex flex-col justify-center space-y-6">
+              {[
+                {
+                  title: "Ownership & Parcel Data",
+                  desc: "APN, lot dimensions, acreage, zoning, tax assessed value, and deed restrictions — pulled from county records.",
+                },
+                {
+                  title: "Market Valuation",
+                  desc: "Comparable sales analysis with value range estimate. See exactly which comps were used and why.",
+                },
+                {
+                  title: "Environmental & Risk Screening",
+                  desc: "Flood zone, wetlands, fire risk, soil contamination, and endangered species — flagged with clear pass/fail indicators.",
+                },
+                {
+                  title: "Development Feasibility",
+                  desc: "Access roads, utility availability, septic/well requirements, and estimated infrastructure costs.",
+                },
+                {
+                  title: "Property Insights",
+                  desc: "Premium reports include a concise summary of your property's strengths, risks, and recommended next steps.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="flex gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center mt-0.5">
+                    <span className="text-brand-600 text-sm font-bold">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-sm">{item.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+              <a
+                href="/order"
+                className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors w-fit mt-2"
+              >
+                Order Your Report →
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -188,10 +310,15 @@ export default function Home() {
                     Most Popular
                   </div>
                 )}
+                {tier.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    {tier.badge}
+                  </div>
+                )}
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-900">{tier.name}</h3>
                   <div className="text-4xl font-extrabold text-gray-900 mt-2">{tier.price}</div>
-                  <p className="text-sm text-gray-500 mt-1">per report</p>
+                  <p className="text-sm text-gray-500 mt-1">{tier.price === "Free" ? "no credit card" : "per report"}</p>
                   <p className="text-sm text-gray-600 mt-3">{tier.description}</p>
                 </div>
                 <ul className="space-y-2 flex-1 mb-8">
@@ -203,14 +330,16 @@ export default function Home() {
                   ))}
                 </ul>
                 <a
-                  href={`/order?tier=${tier.name.toLowerCase()}`}
+                  href={`/order?tier=${tier.id}`}
                   className={`text-center font-semibold py-3 rounded-xl transition-colors ${
                     tier.popular
                       ? "bg-brand-600 hover:bg-brand-700 text-white"
+                      : tier.id === "free"
+                      ? "bg-green-600 hover:bg-green-700 text-white"
                       : "border border-gray-200 hover:border-brand-500 hover:text-brand-600 text-gray-700"
                   }`}
                 >
-                  Order {tier.name}
+                  {tier.id === "free" ? "Get Free Report" : `Order ${tier.name}`}
                 </a>
               </div>
             ))}
@@ -228,7 +357,7 @@ export default function Home() {
       <section className="px-6 py-20">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Trusted by land investors
+            Trusted by landowners
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t) => (
