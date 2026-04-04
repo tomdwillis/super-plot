@@ -10,7 +10,7 @@ const TIERS = [
     price: 0,
     priceDisplay: "Free",
     badge: "Start Here",
-    description: "Basic parcel data — no credit card required.",
+    description: "Quick snapshot of your property.",
     turnaround: "~2 minutes",
     features: [
       "APN, ownership & zoning",
@@ -25,7 +25,7 @@ const TIERS = [
     price: 29,
     priceDisplay: "$29",
     popular: true,
-    description: "Full intelligence for understanding your property's value.",
+    description: "Detailed property intelligence report.",
     turnaround: "~5 minutes",
     features: [
       "Everything in Free",
@@ -41,7 +41,7 @@ const TIERS = [
     name: "Premium",
     price: 49,
     priceDisplay: "$49",
-    description: "Complete property insights for confident decisions.",
+    description: "Complete property analysis with actionable insights.",
     turnaround: "~10 minutes",
     features: [
       "Everything in Standard",
@@ -49,7 +49,7 @@ const TIERS = [
       "Development feasibility analysis",
       "Title chain summary",
       "Infrastructure cost estimates",
-      "Property insights summary",
+      "Property value summary with recommendations",
     ],
   },
 ];
