@@ -246,6 +246,9 @@ export default function AnalyticsDashboard() {
             >
               Refresh
             </button>
+            <a href="/admin/leads" className="text-sm text-green-600 hover:text-green-700 font-medium">
+              CRM Leads →
+            </a>
             <a href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">
               User Dashboard →
             </a>

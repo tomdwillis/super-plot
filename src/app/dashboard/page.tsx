@@ -97,9 +97,6 @@ export default function DashboardPage() {
           </a>
           <div className="flex items-center justify-between mt-3">
             <h1 className="text-3xl font-bold text-gray-900">My Reports</h1>
-            <a href="/dashboard/leads" className="text-sm text-green-600 hover:underline font-medium">
-              CRM Leads →
-            </a>
           </div>
           <p className="text-gray-500 mt-1">
             Enter the email you used at checkout to view your reports.
@@ -248,7 +245,7 @@ export default function DashboardPage() {
                               onClick={() => setChallengeOpenId(report.id)}
                               className="text-xs text-brand-600 hover:text-brand-700 font-medium hover:underline"
                             >
-                              Challenge this valuation →
+                              What affects this value? →
                             </button>
                           )}
                           <WilcoLandOfferCTA
