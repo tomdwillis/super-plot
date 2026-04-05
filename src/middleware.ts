@@ -21,6 +21,11 @@ async function getSessionEdge(req: NextRequest): Promise<string | null> {
 export async function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
+  // Allow unauthenticated POST to /api/reports/free (public checkout)
+  if (pathname === "/api/reports/free" && req.method === "POST") {
+    return NextResponse.next();
+  }
+
   // Protect GET /api/reports and GET /api/reports/{id}
   if (
     pathname === "/api/reports" ||
