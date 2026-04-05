@@ -299,9 +299,9 @@ export default function Home() {
             {TIERS.map((tier) => (
               <div
                 key={tier.name}
-                className={`bg-white rounded-2xl border p-8 flex flex-col ${
+                className={`bg-white rounded-2xl border p-8 flex flex-col relative ${
                   tier.popular
-                    ? "border-brand-500 shadow-xl shadow-brand-50 relative"
+                    ? "border-brand-500 shadow-xl shadow-brand-50"
                     : "border-gray-200"
                 }`}
               >
