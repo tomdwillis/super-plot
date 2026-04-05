@@ -21,10 +21,15 @@ const ParcelDataSchema = z.object({
 const PipelineResultSchema = z.object({
   pdfUrl: z
     .string()
-    .url()
-    .regex(/^https:\/\/storage\.superplot\.com\/reports\//, {
-      message: "pdf_url must be an HTTPS URL matching https://storage.superplot.com/reports/*",
-    }),
+    .refine(
+      (val) =>
+        val.startsWith("/api/reports/") ||
+        val.startsWith("https://storage.superplot.com/reports/"),
+      {
+        message:
+          "pdfUrl must be a local API path (/api/reports/...) or an HTTPS storage URL",
+      }
+    ),
   title: z.string(),
 });
 
@@ -89,8 +94,8 @@ async function runReportPipeline(
   const pipelineServiceUrl = process.env.PIPELINE_SERVICE_URL;
 
   if (!pipelineServiceUrl) {
-    // Stub: placeholder PDF URL until pipeline service is wired
-    const placeholderUrl = `https://storage.superplot.com/reports/${orderId}/report.pdf`;
+    // Stub: local API PDF URL until pipeline service is wired
+    const placeholderUrl = `/api/reports/${orderId}/pdf`;
     return PipelineResultSchema.parse({
       pdfUrl: placeholderUrl,
       title: `${tier.charAt(0).toUpperCase() + tier.slice(1)} Report — ${parcel.address}`,

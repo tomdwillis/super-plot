@@ -86,13 +86,43 @@ function formatRange(min: number, max: number) {
   return `${formatCurrency(min)} – ${formatCurrency(max)}`;
 }
 
+// --- Educational tooltips for each property factor ---
+
+const FACTOR_TOOLTIPS: Record<string, string> = {
+  roadAccess:
+    "How easily you can reach your property matters a lot. Paved road frontage can add significant value, while landlocked parcels with no legal access are much harder to develop or sell.",
+  wetlands:
+    "Wetlands are protected areas where building is restricted. More wetland coverage means less usable land, but wetlands can also provide natural beauty, wildlife habitat, and may qualify for conservation incentives.",
+  topography:
+    "Flat to gently sloping land is easiest and least expensive to build on. Steeper terrain can limit where you place a home, driveway, or septic system, but may offer better views.",
+  septic:
+    "If your land isn't connected to municipal sewer, you'll need a septic system. A passing perc test means the soil can support one. A failing test can significantly limit what you can build.",
+  floodZone:
+    "Properties inside FEMA flood zones require flood insurance and face building restrictions. Being outside a flood zone is a major plus for both value and peace of mind.",
+  utilities:
+    "Having electricity, water, sewer, or gas already available at or near your property line saves thousands in development costs. The more utilities in place, the more build-ready your land is.",
+  additional:
+    "Timber can be a source of income or building material. Mineral rights add long-term value. Confirmed zoning means you know exactly what's allowed on your land — no surprises.",
+};
+
 // --- Sub-components ---
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({
+  children,
+  tooltip,
+}: {
+  children: React.ReactNode;
+  tooltip?: string;
+}) {
   return (
-    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-      {children}
-    </h4>
+    <div className="mb-3">
+      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        {children}
+      </h4>
+      {tooltip && (
+        <p className="text-xs text-gray-400 mt-1 leading-relaxed">{tooltip}</p>
+      )}
+    </div>
   );
 }
 
@@ -249,11 +279,11 @@ export default function ChallengeReportPanel({
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="font-semibold text-gray-900 text-sm">
-            Challenge This Valuation
+            What Affects Your Land's Value?
           </h3>
           <p className="text-xs text-gray-400 mt-0.5">
-            Adjust property characteristics to see how they affect the estimated
-            value.
+            Explore how your property's unique characteristics shape its
+            estimated value. Adjust each factor to learn what matters most.
           </p>
         </div>
         <button
@@ -269,7 +299,7 @@ export default function ChallengeReportPanel({
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Road Access */}
         <div>
-          <SectionLabel>Road Access</SectionLabel>
+          <SectionLabel tooltip={FACTOR_TOOLTIPS.roadAccess}>Road Access</SectionLabel>
           <div className="space-y-2">
             <input
               type="range"
@@ -296,7 +326,7 @@ export default function ChallengeReportPanel({
 
         {/* Wetlands */}
         <div>
-          <SectionLabel>Wetlands Coverage</SectionLabel>
+          <SectionLabel tooltip={FACTOR_TOOLTIPS.wetlands}>Wetlands Coverage</SectionLabel>
           <RadioGroup
             value={adj.wetlandsPercentage}
             options={WETLAND_OPTIONS}
@@ -306,7 +336,7 @@ export default function ChallengeReportPanel({
 
         {/* Topography */}
         <div>
-          <SectionLabel>Topography / Buildability</SectionLabel>
+          <SectionLabel tooltip={FACTOR_TOOLTIPS.topography}>Topography / Buildability</SectionLabel>
           <RadioGroup
             value={adj.topography}
             options={TOPOGRAPHY_OPTIONS}
@@ -316,7 +346,7 @@ export default function ChallengeReportPanel({
 
         {/* Septic */}
         <div>
-          <SectionLabel>Septic</SectionLabel>
+          <SectionLabel tooltip={FACTOR_TOOLTIPS.septic}>Septic</SectionLabel>
           <RadioGroup
             value={adj.septic}
             options={[
@@ -330,7 +360,7 @@ export default function ChallengeReportPanel({
 
         {/* Flood Zone */}
         <div>
-          <SectionLabel>Flood Zone</SectionLabel>
+          <SectionLabel tooltip={FACTOR_TOOLTIPS.floodZone}>Flood Zone</SectionLabel>
           <RadioGroup
             value={adj.floodZone}
             options={[
@@ -344,7 +374,7 @@ export default function ChallengeReportPanel({
 
         {/* Utilities */}
         <div>
-          <SectionLabel>Utilities Available</SectionLabel>
+          <SectionLabel tooltip={FACTOR_TOOLTIPS.utilities}>Utilities Available</SectionLabel>
           <div className="flex flex-wrap gap-2">
             {(
               [
@@ -366,7 +396,7 @@ export default function ChallengeReportPanel({
 
         {/* Timber, Minerals, Zoning */}
         <div>
-          <SectionLabel>Additional Characteristics</SectionLabel>
+          <SectionLabel tooltip={FACTOR_TOOLTIPS.additional}>Additional Characteristics</SectionLabel>
           <div className="flex flex-wrap gap-2">
             <ToggleCheckbox
               checked={adj.timberMinerals.timber}
@@ -405,10 +435,10 @@ export default function ChallengeReportPanel({
           {submitting ? (
             <>
               <span className="animate-spin inline-block">⟳</span>
-              Re-running valuation…
+              Recalculating your estimate…
             </>
           ) : (
-            "Run Adjusted Valuation"
+            "See Updated Estimate"
           )}
         </button>
       </form>
@@ -424,7 +454,7 @@ export default function ChallengeReportPanel({
       {result && (
         <div className="mt-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
           <h4 className="text-sm font-semibold text-gray-800 mb-3">
-            Adjusted Valuation
+            Your Refined Estimate
           </h4>
 
           <div className="grid grid-cols-2 gap-3 mb-4">
@@ -460,7 +490,7 @@ export default function ChallengeReportPanel({
           {result.factors.length > 0 && (
             <div>
               <p className="text-xs font-medium text-gray-500 mb-2">
-                Adjustment factors
+                What's driving the change
               </p>
               <div className="space-y-1.5">
                 {result.factors.map((f, i) => (
@@ -477,11 +507,12 @@ export default function ChallengeReportPanel({
           )}
 
           <p className="text-xs text-gray-400 mt-3">
-            These adjustments do not modify your original report.{" "}
+            This is an estimate based on the details you provided — your
+            original report stays unchanged.{" "}
             <a href="/order" className="text-brand-600 hover:underline">
-              Order a new report
+              Get a detailed report
             </a>{" "}
-            to capture these updates.
+            for a professional-grade valuation.
           </p>
         </div>
       )}

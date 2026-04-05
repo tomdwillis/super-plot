@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         leadId: lead.id,
-        message: "Thank you! A Wilco Land representative will contact you within 24 hours.",
+        message: "Thank you for your interest. We'll review your property details and follow up within a few business days — no obligation.",
       },
       { status: 201 }
     );

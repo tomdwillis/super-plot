@@ -17,12 +17,24 @@ export async function POST(req: NextRequest) {
     }
     const { email } = parsed.data;
 
-    // Upsert — idempotent if they sign up multiple times
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Upsert email capture — idempotent if they sign up multiple times
     await query(
       `INSERT INTO email_captures (email, created_at)
        VALUES ($1, now())
        ON CONFLICT (email) DO NOTHING`,
-      [email.toLowerCase().trim()]
+      [normalizedEmail]
+    );
+
+    // Also add to CRM leads pipeline for follow-up (skip if already exists)
+    await query(
+      `INSERT INTO leads (id, email, source, status, created_at, updated_at)
+       SELECT gen_random_uuid(), $1, 'landing_page', 'new', now(), now()
+       WHERE NOT EXISTS (
+         SELECT 1 FROM leads WHERE email = $1 AND (apn IS NULL OR apn = '')
+       )`,
+      [normalizedEmail]
     );
 
     return NextResponse.json({ success: true });

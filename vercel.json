@@ -3,6 +3,10 @@
     {
       "path": "/api/pipeline/process-orders",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/pipeline/process-jobs",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

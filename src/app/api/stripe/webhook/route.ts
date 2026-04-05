@@ -7,11 +7,6 @@ import { generateMagicToken } from "@/lib/auth";
 import { sendMagicLinkEmail } from "@/lib/email";
 import Stripe from "stripe";
 
-// Stripe requires raw body for signature verification
-export const config = {
-  api: { bodyParser: false },
-};
-
 export async function POST(req: NextRequest) {
   const receivedAt = Date.now();
   const body = await req.text();

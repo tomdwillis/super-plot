@@ -1,15 +1,28 @@
 import Stripe from "stripe";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error("STRIPE_SECRET_KEY is not set");
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-10-16",
+    });
+  }
+  return _stripe;
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-04-10",
+/** @deprecated Use getStripe() instead */
+export const stripe = new Proxy({} as Stripe, {
+  get(_, prop) {
+    return (getStripe() as unknown as Record<string | symbol, unknown>)[prop];
+  },
 });
 
-export const TIER_PRICES: Record<string, { cents: number; name: string }> = {
-  basic: { cents: 2900, name: "Super Plot Basic Report" },
-  professional: { cents: 5900, name: "Super Plot Professional Report" },
-  premium: { cents: 9900, name: "Super Plot Premium Report" },
+export const TIER_PRICES: Record<string, { cents: number; name: string; priceEnvVar?: string }> = {
+  free: { cents: 0, name: "Super Plot Free Report" },
+  standard: { cents: 2900, name: "Super Plot Standard Report", priceEnvVar: "STRIPE_PRICE_STANDARD" },
+  premium: { cents: 4900, name: "Super Plot Premium Report", priceEnvVar: "STRIPE_PRICE_PREMIUM" },
 };

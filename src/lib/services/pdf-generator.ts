@@ -385,9 +385,8 @@ export async function generatePdf(report: AssembledReport): Promise<PdfResult> {
   const filePath = path.join(uploadsDir, "report.pdf");
   await writeFile(filePath, buffer);
 
-  // For MVP, use a placeholder URL pattern.
-  // In production this would be an S3 presigned URL.
-  const pdfUrl = `https://storage.superplot.com/reports/${report.orderId}/report.pdf`;
+  // Serve via the local API route. In production this would be an S3 presigned URL.
+  const pdfUrl = `/api/reports/${report.orderId}/pdf`;
 
   const durationMs = Date.now() - startTime;
   console.log(
