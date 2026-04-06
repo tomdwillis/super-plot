@@ -188,7 +188,8 @@ export async function POST(req: NextRequest) {
         tags: { stripeEventType: event.type, stripeEventId: event.id },
         extra: { reportId, sessionId: session.id },
       });
-      // Return 200 anyway so Stripe doesn't retry
+      // Return 500 so Stripe retries the webhook
+      return NextResponse.json({ error: "DB update failed" }, { status: 500 });
     }
   } else if (event.type === "payment_intent.payment_failed") {
     const intent = event.data.object as Stripe.PaymentIntent;

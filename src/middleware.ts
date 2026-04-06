@@ -26,7 +26,36 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect GET /api/reports and GET /api/reports/{id}
+  // Allow Stripe webhook (signature-verified in handler)
+  if (pathname === "/api/stripe/webhook" && req.method === "POST") {
+    return NextResponse.next();
+  }
+
+  // Protect admin routes: /api/leads*, /api/admin/*, /admin/*
+  if (
+    pathname.startsWith("/api/leads") ||
+    pathname.startsWith("/api/admin") ||
+    pathname.startsWith("/admin")
+  ) {
+    const sessionEmail = await getSessionEdge(req);
+    if (!sessionEmail) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Admin routes require ADMIN_EMAILS allowlist
+    const adminEmails = (process.env.ADMIN_EMAILS ?? "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (adminEmails.length > 0 && !adminEmails.includes(sessionEmail.toLowerCase())) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    return NextResponse.next();
+  }
+
+  // Protect /api/reports and /api/reports/{id}/*
   if (
     pathname === "/api/reports" ||
     pathname.startsWith("/api/reports/")
@@ -50,5 +79,12 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/reports", "/api/reports/:path*"],
+  matcher: [
+    "/api/reports",
+    "/api/reports/:path*",
+    "/api/leads/:path*",
+    "/api/admin/:path*",
+    "/admin/:path*",
+    "/api/stripe/webhook",
+  ],
 };

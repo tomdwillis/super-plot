@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   return NextResponse.redirect(
-    `${appUrl}/reports?email=${encodeURIComponent(email)}`
+    `${appUrl}/dashboard?email=${encodeURIComponent(email)}`
   );
 }
 
@@ -54,6 +54,6 @@ export async function GET(req: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   return NextResponse.redirect(
-    `${appUrl}/reports?email=${encodeURIComponent(email)}`
+    `${appUrl}/dashboard?email=${encodeURIComponent(email)}`
   );
 }

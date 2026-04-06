@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 import {
   validateAdjustmentPayload,
   ValuationAdjustmentPayload,
@@ -9,6 +10,24 @@ import {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+async function verifyOwnership(
+  req: NextRequest,
+  reportOrderId: string
+): Promise<NextResponse | null> {
+  const email = await getSession(req);
+  if (!email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const rows = await query<{ id: string }>(
+    `SELECT id FROM report_orders WHERE id = $1 AND email = $2`,
+    [reportOrderId, email]
+  );
+  if (rows.length === 0) {
+    return NextResponse.json({ error: "Report not found" }, { status: 404 });
+  }
+  return null;
+}
 
 /**
  * Fire-and-forget re-valuation job.
@@ -47,14 +66,8 @@ export async function GET(
   const { id: reportOrderId } = params;
 
   try {
-    // Verify the report exists
-    const reportRows = await query(
-      `SELECT id FROM report_orders WHERE id = $1`,
-      [reportOrderId]
-    );
-    if (reportRows.length === 0) {
-      return NextResponse.json({ error: "Report not found" }, { status: 404 });
-    }
+    const ownershipError = await verifyOwnership(_req, reportOrderId);
+    if (ownershipError) return ownershipError;
 
     const adjustments = await query<ValuationAdjustmentRow>(
       `SELECT id, report_order_id, septic, road_access, wetlands_pct,
@@ -122,14 +135,8 @@ export async function POST(
   const p = payload as ValuationAdjustmentPayload;
 
   try {
-    // Verify the report exists
-    const reportRows = await query(
-      `SELECT id FROM report_orders WHERE id = $1`,
-      [reportOrderId]
-    );
-    if (reportRows.length === 0) {
-      return NextResponse.json({ error: "Report not found" }, { status: 404 });
-    }
+    const ownershipError = await verifyOwnership(req, reportOrderId);
+    if (ownershipError) return ownershipError;
 
     const rows = await query<ValuationAdjustmentRow>(
       `INSERT INTO valuation_adjustments (
@@ -223,14 +230,8 @@ export async function PUT(
   const p = payload as ValuationAdjustmentPayload;
 
   try {
-    // Verify the report exists
-    const reportRows = await query(
-      `SELECT id FROM report_orders WHERE id = $1`,
-      [reportOrderId]
-    );
-    if (reportRows.length === 0) {
-      return NextResponse.json({ error: "Report not found" }, { status: 404 });
-    }
+    const ownershipError = await verifyOwnership(req, reportOrderId);
+    if (ownershipError) return ownershipError;
 
     // Find the most recent pending (or any) adjustment for this report
     const existing = await query<{ id: string }>(

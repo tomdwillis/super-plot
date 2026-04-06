@@ -64,6 +64,14 @@ export async function POST(req: NextRequest) {
 
     const tier = data.tier;
 
+    // Paid tiers must go through /api/stripe/checkout to enforce payment
+    if (tier !== "free") {
+      return NextResponse.json(
+        { error: "Paid reports must be purchased through /api/stripe/checkout" },
+        { status: 400 }
+      );
+    }
+
     // Create the report order
     const rows = await query<{ id: string }>(
       `INSERT INTO report_orders

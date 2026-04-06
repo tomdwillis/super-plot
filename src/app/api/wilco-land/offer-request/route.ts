@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 interface OfferRequestBody {
   reportOrderId?: string;
@@ -20,7 +21,7 @@ function validateBody(body: unknown): { errors: string[] } {
   if (!b.contactName || typeof b.contactName !== "string" || !b.contactName.trim()) {
     errors.push("contactName is required");
   }
-  if (!b.contactEmail || typeof b.contactEmail !== "string" || !b.contactEmail.includes("@")) {
+  if (!b.contactEmail || typeof b.contactEmail !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(b.contactEmail)) {
     errors.push("contactEmail must be a valid email address");
   }
   if (!b.contactPhone || typeof b.contactPhone !== "string" || !b.contactPhone.trim()) {
@@ -38,6 +39,9 @@ function validateBody(body: unknown): { errors: string[] } {
 // ---------------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(req, { limit: 5, windowSecs: 60 });
+  if (rateLimitResponse) return rateLimitResponse;
+
   let body: unknown;
   try {
     body = await req.json();

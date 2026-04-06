@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { enqueueJob } from "@/lib/queue";
+import { checkRateLimit } from "@/lib/ratelimit";
+
+const VALID_INPUT_TYPES = ["apn", "address"] as const;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: NextRequest) {
+  const rateLimitResponse = await checkRateLimit(req, { limit: 5, windowSecs: 60 });
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
     const body = await req.json();
     const { email, parcel_input, input_type } = body;
@@ -14,12 +21,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!EMAIL_RE.test(email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    const resolvedInputType = VALID_INPUT_TYPES.includes(input_type) ? input_type : "apn";
+
     const rows = await query<{ id: string }>(
       `INSERT INTO report_orders
          (email, tier, parcel_input, input_type, status, price_cents, created_at, updated_at)
        VALUES ($1, 'free', $2, $3, 'generating', 0, now(), now())
        RETURNING id`,
-      [email, parcel_input, input_type ?? "apn"]
+      [email, parcel_input, resolvedInputType]
     );
 
     const reportId = rows[0].id;

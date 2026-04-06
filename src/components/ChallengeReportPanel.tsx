@@ -264,7 +264,7 @@ export default function ChallengeReportPanel({
       }
 
       const data = await res.json();
-      setResult(data.result as AdjustmentResult);
+      setResult(data.adjustment as AdjustmentResult);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       setApiError(msg);
