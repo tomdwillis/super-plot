@@ -94,11 +94,10 @@ function FunnelStep({
   );
 }
 
-const TIER_ORDER = ["free", "basic", "professional", "premium"];
+const TIER_ORDER = ["free", "standard", "premium"];
 const TIER_COLORS: Record<string, string> = {
   free: "bg-gray-100 text-gray-600",
-  basic: "bg-blue-50 text-blue-700",
-  professional: "bg-purple-50 text-purple-700",
+  standard: "bg-blue-50 text-blue-700",
   premium: "bg-amber-50 text-amber-700",
 };
 

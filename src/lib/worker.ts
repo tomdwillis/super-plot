@@ -22,7 +22,7 @@ import { findSeedParcel, generatePlausibleData } from "@/lib/seed-data";
 interface ReportOrder {
   id: string;
   email: string;
-  tier: "free" | "basic" | "professional" | "premium";
+  tier: "free" | "standard" | "premium";
   parcel_input: string;
   input_type: "apn" | "address";
 }

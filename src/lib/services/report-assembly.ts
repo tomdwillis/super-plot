@@ -59,7 +59,7 @@ export interface ValuationData {
   confidenceHigh?: number;
 }
 
-export type ReportTier = "free" | "basic" | "professional" | "premium";
+export type ReportTier = "free" | "standard" | "premium";
 
 export interface ReportSection {
   title: string;

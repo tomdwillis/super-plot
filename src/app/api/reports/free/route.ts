@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { enqueueJob } from "@/lib/queue";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,6 +23,9 @@ export async function POST(req: NextRequest) {
     );
 
     const reportId = rows[0].id;
+
+    // Enqueue the pipeline job so the report actually gets generated
+    await enqueueJob(reportId);
 
     return NextResponse.json({ reportId });
   } catch (err) {

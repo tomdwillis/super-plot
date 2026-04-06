@@ -9,7 +9,7 @@ import { checkRateLimit } from "@/lib/ratelimit";
 
 const CreateByParcelId = z.object({
   parcelId: z.string().min(1).max(50),
-  tier: z.enum(["free", "basic", "professional", "premium"]).default("free"),
+  tier: z.enum(["free", "standard", "premium"]).default("free"),
   email: z.string().email().optional(),
 });
 
@@ -17,7 +17,7 @@ const CreateByAddress = z.object({
   address: z.string().min(1).max(200),
   county: z.string().min(1).max(100).optional(),
   state: z.string().min(1).max(50).optional(),
-  tier: z.enum(["free", "basic", "professional", "premium"]).default("free"),
+  tier: z.enum(["free", "standard", "premium"]).default("free"),
   email: z.string().email().optional(),
 });
 

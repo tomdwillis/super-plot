@@ -5,7 +5,7 @@ import ChallengeReportPanel from "@/components/ChallengeReportPanel";
 import WilcoLandOfferCTA from "@/components/WilcoLandOfferCTA";
 
 type ReportStatus = "pending" | "generating" | "ready" | "failed";
-type ReportTier = "free" | "basic" | "professional" | "premium";
+type ReportTier = "free" | "standard" | "premium";
 
 interface Report {
   id: string;

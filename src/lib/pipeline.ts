@@ -4,7 +4,7 @@ import { query } from "@/lib/db";
 interface ReportOrder {
   id: string;
   email: string;
-  tier: "free" | "basic" | "professional" | "premium";
+  tier: "free" | "standard" | "premium";
   parcel_input: string;
   input_type: "apn" | "address";
 }
