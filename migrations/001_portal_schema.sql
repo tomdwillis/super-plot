@@ -8,7 +8,7 @@
 CREATE TABLE IF NOT EXISTS report_orders (
   id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email                     TEXT NOT NULL,
-  tier                      TEXT NOT NULL CHECK (tier IN ('free', 'basic', 'professional', 'premium')),
+  tier                      TEXT NOT NULL CHECK (tier IN ('free', 'standard', 'premium')),
   parcel_input              TEXT NOT NULL,
   input_type                TEXT NOT NULL CHECK (input_type IN ('apn', 'address')),
   status                    TEXT NOT NULL DEFAULT 'pending'
