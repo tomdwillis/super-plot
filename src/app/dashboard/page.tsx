@@ -31,8 +31,7 @@ const STATUS_CONFIG: Record<
 
 const TIER_LABELS: Record<ReportTier, string> = {
   free: "Free",
-  basic: "Basic",
-  professional: "Professional",
+  standard: "Standard",
   premium: "Premium",
 };
 
