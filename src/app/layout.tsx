@@ -22,6 +22,9 @@ export default function RootLayout({
               <span className="text-xl font-bold text-brand-700">Super Plot</span>
             </a>
             <div className="flex items-center gap-6">
+              <a href="/blog" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                Blog
+              </a>
               <a href="/order" className="text-sm font-medium text-gray-600 hover:text-gray-900">
                 Order Report
               </a>
@@ -46,6 +49,7 @@ export default function RootLayout({
               <span>— Vacant Land Intelligence</span>
             </div>
             <div className="flex gap-6">
+              <a href="/blog" className="hover:text-gray-600">Blog</a>
               <a href="/order" className="hover:text-gray-600">Order a Report</a>
               <a href="/dashboard" className="hover:text-gray-600">My Reports</a>
             </div>
