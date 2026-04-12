@@ -42,26 +42,31 @@ export async function POST(req: NextRequest) {
     );
     const reportId = rows[0].id;
 
+    const priceId = tierConfig.priceEnvVar ? process.env[tierConfig.priceEnvVar] : undefined;
+
+    const lineItem =
+      typeof priceId === "string" && priceId.length > 0
+        ? { price: priceId, quantity: 1 }
+        : {
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: tierConfig.name,
+                description:
+                  inputType === "apn"
+                    ? `APN: ${parcelInput}`
+                    : `Address: ${parcelInput}`,
+              },
+              unit_amount: tierConfig.cents,
+            },
+            quantity: 1,
+          };
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
       customer_email: email,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: tierConfig.name,
-              description:
-                inputType === "apn"
-                  ? `APN: ${parcelInput}`
-                  : `Address: ${parcelInput}`,
-            },
-            unit_amount: tierConfig.cents,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: [lineItem],
       metadata: {
         reportId,
         tier,

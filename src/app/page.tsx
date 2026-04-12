@@ -19,7 +19,7 @@ const TIERS = [
   {
     id: "standard",
     name: "Standard",
-    price: "$29",
+    price: "$59",
     popular: true,
     description: "Full intelligence for understanding your property's value.",
     features: [
@@ -34,7 +34,7 @@ const TIERS = [
   {
     id: "premium",
     name: "Premium",
-    price: "$49",
+    price: "$99",
     description: "Complete property insights for confident decisions.",
     features: [
       "Everything in Standard",
@@ -104,7 +104,7 @@ export default function Home() {
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
             Super Plot delivers instant property intelligence reports for your vacant land — ownership,
-            valuation, environmental risk, zoning, and more. Free basic report, paid tiers from $29.
+            valuation, environmental risk, zoning, and more. Free basic report, paid tiers from $59.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -148,7 +148,7 @@ export default function Home() {
                 step: "2",
                 icon: "🔍",
                 title: "Choose your tier",
-                desc: "Start free, or unlock full intelligence with Standard ($29) or Premium ($49).",
+                desc: "Start free, or unlock full intelligence with Standard ($59) or Premium ($99).",
               },
               {
                 step: "3",

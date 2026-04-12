@@ -22,8 +22,8 @@ const TIERS = [
   {
     id: "standard",
     name: "Standard",
-    price: 29,
-    priceDisplay: "$29",
+    price: 59,
+    priceDisplay: "$59",
     popular: true,
     description: "Detailed property intelligence report.",
     turnaround: "~5 minutes",
@@ -39,8 +39,8 @@ const TIERS = [
   {
     id: "premium",
     name: "Premium",
-    price: 49,
-    priceDisplay: "$49",
+    price: 99,
+    priceDisplay: "$99",
     description: "Complete property analysis with actionable insights.",
     turnaround: "~10 minutes",
     features: [

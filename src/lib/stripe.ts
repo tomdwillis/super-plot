@@ -23,6 +23,6 @@ export const stripe = new Proxy({} as Stripe, {
 
 export const TIER_PRICES: Record<string, { cents: number; name: string; priceEnvVar?: string }> = {
   free: { cents: 0, name: "Super Plot Free Report" },
-  standard: { cents: 2900, name: "Super Plot Standard Report", priceEnvVar: "STRIPE_PRICE_STANDARD" },
-  premium: { cents: 4900, name: "Super Plot Premium Report", priceEnvVar: "STRIPE_PRICE_PREMIUM" },
+  standard: { cents: 5900, name: "Super Plot Standard Report", priceEnvVar: "STRIPE_PRICE_STANDARD" },
+  premium: { cents: 9900, name: "Super Plot Premium Report", priceEnvVar: "STRIPE_PRICE_PREMIUM" },
 };
