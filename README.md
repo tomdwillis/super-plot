@@ -85,3 +85,4 @@ The report pipeline is fully wired. When `checkout.session.completed` fires:
 | `PIPELINE_SECRET` | Bearer token protecting `/api/pipeline/process-orders` |
 
 A Vercel cron job (`vercel.json`) calls `POST /api/pipeline/process-orders` every 5 minutes as a safety net for any orders the webhook fire-and-forget may have missed.
+
