@@ -16,9 +16,9 @@ export async function POST(req: NextRequest) {
   const rateLimitResponse = await checkRateLimit(req, { limit: 10, windowSecs: 60 });
   if (rateLimitResponse) return rateLimitResponse;
 
-  const secret = process.env.PIPELINE_SECRET;
+  const secret = process.env.PIPELINE_SECRET ?? process.env.CRON_SECRET;
   if (!secret) {
-    console.error("[process-orders] PIPELINE_SECRET is not set — refusing all requests");
+    console.error("[process-orders] Neither PIPELINE_SECRET nor CRON_SECRET is set — refusing all requests");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const auth = req.headers.get("authorization");

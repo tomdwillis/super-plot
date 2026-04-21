@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/pipeline/process-orders",
-      "schedule": "0 0 * * *"
+      "schedule": "*/5 * * * *"
     },
     {
       "path": "/api/pipeline/process-jobs",
-      "schedule": "0 0 * * *"
+      "schedule": "*/5 * * * *"
     },
     {
       "path": "/api/drip/process",
