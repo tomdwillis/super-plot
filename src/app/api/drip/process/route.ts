@@ -1,5 +1,5 @@
 /**
- * POST /api/drip/process
+ * GET|POST /api/drip/process
  *
  * Cron endpoint — processes pending drip emails that are due now.
  * Called by a Paperclip routine on an hourly schedule.
@@ -24,7 +24,7 @@ interface PendingDrip {
 
 const BATCH_SIZE = 50;
 
-export async function POST(req: NextRequest) {
+async function handle(req: NextRequest) {
   // Verify cron secret
   const secret = process.env.CRON_SECRET;
   if (secret) {
@@ -101,4 +101,12 @@ export async function POST(req: NextRequest) {
     console.error("[drip] process error:", err);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
+}
+
+export async function GET(req: NextRequest) {
+  return handle(req);
+}
+
+export async function POST(req: NextRequest) {
+  return handle(req);
 }

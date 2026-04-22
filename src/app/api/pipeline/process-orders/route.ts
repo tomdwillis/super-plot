@@ -3,7 +3,7 @@ import { processGeneratingOrders } from "@/lib/pipeline";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 /**
- * POST /api/pipeline/process-orders
+ * GET|POST /api/pipeline/process-orders
  *
  * Internal endpoint invoked by:
  *   - Vercel cron (every 5 minutes, via vercel.json) — catches any orders the
@@ -12,7 +12,7 @@ import { checkRateLimit } from "@/lib/ratelimit";
  *
  * Protected by PIPELINE_SECRET bearer token.
  */
-export async function POST(req: NextRequest) {
+async function handle(req: NextRequest) {
   const rateLimitResponse = await checkRateLimit(req, { limit: 10, windowSecs: 60 });
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -33,4 +33,12 @@ export async function POST(req: NextRequest) {
     console.error("[process-orders] Unhandled error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+export async function GET(req: NextRequest) {
+  return handle(req);
+}
+
+export async function POST(req: NextRequest) {
+  return handle(req);
 }

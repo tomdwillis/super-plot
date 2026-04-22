@@ -3,7 +3,7 @@ import { runWorker } from "@/lib/worker";
 import { checkRateLimit } from "@/lib/ratelimit";
 
 /**
- * POST /api/pipeline/process-jobs
+ * GET|POST /api/pipeline/process-jobs
  *
  * Processes pending report jobs through the enrichment pipeline.
  * Invoked by:
@@ -12,7 +12,7 @@ import { checkRateLimit } from "@/lib/ratelimit";
  *
  * Protected by PIPELINE_SECRET bearer token.
  */
-export async function POST(req: NextRequest) {
+async function handle(req: NextRequest) {
   const rateLimitResponse = await checkRateLimit(req, { limit: 10, windowSecs: 60 });
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -33,4 +33,12 @@ export async function POST(req: NextRequest) {
     console.error("[process-jobs] Unhandled error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+export async function GET(req: NextRequest) {
+  return handle(req);
+}
+
+export async function POST(req: NextRequest) {
+  return handle(req);
 }
