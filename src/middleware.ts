@@ -21,11 +21,6 @@ async function getSessionEdge(req: NextRequest): Promise<string | null> {
 export async function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
 
-  // Allow unauthenticated POST to /api/reports/free (public checkout)
-  if (pathname === "/api/reports/free" && req.method === "POST") {
-    return NextResponse.next();
-  }
-
   // Allow Stripe webhook (signature-verified in handler)
   if (pathname === "/api/stripe/webhook" && req.method === "POST") {
     return NextResponse.next();

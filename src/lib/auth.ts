@@ -18,6 +18,13 @@ function getSessionSecret(): Uint8Array {
 
 /** Generate a raw magic-link token, store its hash, and return the raw token. */
 export async function generateMagicToken(email: string): Promise<string> {
+  // Opportunistic cleanup to keep auth_tokens table bounded without a separate cron job.
+  await query(
+    `DELETE FROM auth_tokens
+     WHERE expires_at < now()
+        OR (used_at IS NOT NULL AND used_at < now() - interval '7 days')`
+  );
+
   const raw = randomBytes(32).toString("hex");
   const hash = createHash("sha256").update(raw).digest("hex");
   const expiresAt = new Date(Date.now() + TOKEN_TTL_HOURS * 60 * 60 * 1000);

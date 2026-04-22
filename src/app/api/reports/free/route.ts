@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { enqueueJob } from "@/lib/queue";
 import { checkRateLimit } from "@/lib/ratelimit";
+import { getSession } from "@/lib/auth";
 
 const VALID_INPUT_TYPES = ["apn", "address"] as const;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -11,6 +12,11 @@ export async function POST(req: NextRequest) {
   if (rateLimitResponse) return rateLimitResponse;
 
   try {
+    const sessionEmail = await getSession(req);
+    if (!sessionEmail) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { email, parcel_input, input_type } = body;
 
@@ -25,6 +31,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Invalid email format" },
         { status: 400 }
+      );
+    }
+
+    if (email.toLowerCase() !== sessionEmail.toLowerCase()) {
+      return NextResponse.json(
+        { error: "Forbidden: email must match authenticated session" },
+        { status: 403 }
       );
     }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import Papa from "papaparse";
 
 const EXPECTED_FIELDS = [
   "email",
@@ -31,35 +32,26 @@ function isValidEmail(email: string): boolean {
 }
 
 function parseCSV(text: string): LeadRow[] {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim());
-  if (lines.length < 2) return [];
+  const parsed = Papa.parse<Record<string, string>>(text, {
+    header: true,
+    skipEmptyLines: true,
+    transformHeader: (header) =>
+      header
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "_")
+        .replace(/[^a-z_]/g, ""),
+  });
 
-  const headers = lines[0].split(",").map((h) => h.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z_]/g, ""));
-  return lines.slice(1).map((line) => {
-    // Basic CSV parse — handles quoted fields with commas
-    const values: string[] = [];
-    let current = "";
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') {
-        inQuotes = !inQuotes;
-      } else if (ch === "," && !inQuotes) {
-        values.push(current.trim());
-        current = "";
-      } else {
-        current += ch;
-      }
-    }
-    values.push(current.trim());
+  if (parsed.errors.length > 0) {
+    throw new Error(parsed.errors[0].message);
+  }
 
+  return parsed.data.map((rawRow) => {
     const row: LeadRow = {};
-    headers.forEach((h, idx) => {
-      const key = h as keyof LeadRow;
-      if (EXPECTED_FIELDS.includes(key as (typeof EXPECTED_FIELDS)[number])) {
-        row[key as (typeof EXPECTED_FIELDS)[number]] = values[idx] ?? "";
-      }
-    });
+    for (const field of EXPECTED_FIELDS) {
+      row[field] = typeof rawRow[field] === "string" ? rawRow[field] : "";
+    }
     return row;
   });
 }

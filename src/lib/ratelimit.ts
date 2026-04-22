@@ -27,6 +27,7 @@ function getClientIp(req: NextRequest): string {
 
 /** key → sorted list of request timestamps (ms) */
 const memStore = new Map<string, number[]>();
+let warnedProdFallback = false;
 
 function inMemoryCheck(
   key: string,
@@ -101,6 +102,13 @@ export async function checkRateLimit(
     } catch {
       // Package not installed or Redis unavailable — fall through to in-memory.
     }
+  }
+
+  if (process.env.NODE_ENV === "production" && !warnedProdFallback) {
+    warnedProdFallback = true;
+    console.warn(
+      "[ratelimit] KV_REST_API_URL/KV_REST_API_TOKEN are not set; using per-instance in-memory fallback"
+    );
   }
 
   // ── In-memory fallback ────────────────────────────────────────────────────
