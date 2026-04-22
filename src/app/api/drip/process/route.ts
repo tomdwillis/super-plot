@@ -25,13 +25,18 @@ interface PendingDrip {
 const BATCH_SIZE = 50;
 
 async function handle(req: NextRequest) {
-  // Verify cron secret
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const acceptedSecrets = [process.env.PIPELINE_SECRET, process.env.CRON_SECRET].filter(
+    (value): value is string => Boolean(value)
+  );
+  if (acceptedSecrets.length === 0) {
+    console.error("[drip] Neither PIPELINE_SECRET nor CRON_SECRET is set — refusing all requests");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const auth = req.headers.get("authorization");
+  const isAuthorized = acceptedSecrets.some((secret) => auth === `Bearer ${secret}`);
+  if (!isAuthorized) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {

@@ -16,13 +16,17 @@ async function handle(req: NextRequest) {
   const rateLimitResponse = await checkRateLimit(req, { limit: 10, windowSecs: 60 });
   if (rateLimitResponse) return rateLimitResponse;
 
-  const secret = process.env.PIPELINE_SECRET ?? process.env.CRON_SECRET;
-  if (!secret) {
+  const acceptedSecrets = [process.env.PIPELINE_SECRET, process.env.CRON_SECRET].filter(
+    (value): value is string => Boolean(value)
+  );
+  if (acceptedSecrets.length === 0) {
     console.error("[process-orders] Neither PIPELINE_SECRET nor CRON_SECRET is set — refusing all requests");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   const auth = req.headers.get("authorization");
-  if (auth !== `Bearer ${secret}`) {
+  const isAuthorized = acceptedSecrets.some((secret) => auth === `Bearer ${secret}`);
+  if (!isAuthorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
