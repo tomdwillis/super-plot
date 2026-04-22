@@ -39,29 +39,19 @@ export async function generateMagicToken(email: string): Promise<string> {
 export async function validateMagicToken(raw: string): Promise<string> {
   const hash = createHash("sha256").update(raw).digest("hex");
 
-  const rows = await query<{
-    id: string;
-    email: string;
-    used_at: Date | null;
-    expires_at: Date;
-  }>(
-    `SELECT id, email, used_at, expires_at
-     FROM auth_tokens
-     WHERE token_hash = $1`,
+  const rows = await query<{ email: string }>(
+    `UPDATE auth_tokens
+     SET used_at = now()
+     WHERE token_hash = $1
+       AND used_at IS NULL
+       AND expires_at > now()
+     RETURNING email`,
     [hash]
   );
 
   if (rows.length === 0) throw new Error("Invalid token");
 
-  const { id, email, used_at, expires_at } = rows[0];
-
-  if (used_at) throw new Error("Token already used");
-  if (new Date() > new Date(expires_at)) throw new Error("Token expired");
-
-  // Mark as used
-  await query(`UPDATE auth_tokens SET used_at = now() WHERE id = $1`, [id]);
-
-  return email;
+  return rows[0].email;
 }
 
 // ─── JWT sessions ─────────────────────────────────────────────────────────────
@@ -79,7 +69,7 @@ export async function createSession(email: string): Promise<void> {
 
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV !== "development",
     sameSite: "strict",
     expires: expiresAt,
     path: "/",

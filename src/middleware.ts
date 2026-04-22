@@ -48,7 +48,7 @@ export async function middleware(req: NextRequest) {
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
 
-    if (adminEmails.length > 0 && !adminEmails.includes(sessionEmail.toLowerCase())) {
+    if (!adminEmails.includes(sessionEmail.toLowerCase())) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

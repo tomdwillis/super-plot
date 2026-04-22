@@ -27,7 +27,7 @@ export async function GET(
 
     const report = rows[0];
 
-    if (sessionEmail && report.email.toLowerCase() !== sessionEmail.toLowerCase()) {
+    if (!sessionEmail || report.email.toLowerCase() !== sessionEmail.toLowerCase()) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

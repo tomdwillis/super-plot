@@ -6,7 +6,7 @@ import { checkRateLimit } from "@/lib/ratelimit";
 
 const CheckoutSchema = z.object({
   tier: z.string().min(1),
-  parcelInput: z.string().min(1),
+  parcelInput: z.string().min(1).max(500),
   inputType: z.string().default("address"),
   email: z.string().email(),
 });
