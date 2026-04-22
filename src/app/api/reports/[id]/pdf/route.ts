@@ -3,6 +3,12 @@ import { stat, readFile } from "fs/promises";
 import path from "path";
 import { query } from "@/lib/db";
 
+function getUploadsRoot(): string {
+  if (process.env.REPORT_UPLOADS_DIR) return process.env.REPORT_UPLOADS_DIR;
+  if (process.env.VERCEL) return "/tmp/uploads";
+  return path.join(process.cwd(), "uploads");
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: { id: string } }
@@ -24,7 +30,7 @@ export async function GET(
     return NextResponse.json({ error: "Report not found" }, { status: 404 });
   }
 
-  const filePath = path.join(process.cwd(), "uploads", "reports", id, "report.pdf");
+  const filePath = path.join(getUploadsRoot(), "reports", id, "report.pdf");
 
   try {
     await stat(filePath);

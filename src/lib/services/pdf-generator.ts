@@ -365,6 +365,12 @@ export interface PdfResult {
   pdfUrl: string;
 }
 
+function getUploadsRoot(): string {
+  if (process.env.REPORT_UPLOADS_DIR) return process.env.REPORT_UPLOADS_DIR;
+  if (process.env.VERCEL) return "/tmp/uploads";
+  return path.join(process.cwd(), "uploads");
+}
+
 /**
  * Render an assembled report to PDF and store it locally.
  * Returns the file path, size, and URL for the generated PDF.
@@ -379,7 +385,7 @@ export async function generatePdf(report: AssembledReport): Promise<PdfResult> {
   const buffer = await renderToBuffer(doc as React.ReactElement);
 
   // Store locally — uploads/reports/{orderId}/report.pdf
-  const uploadsDir = path.join(process.cwd(), "uploads", "reports", report.orderId);
+  const uploadsDir = path.join(getUploadsRoot(), "reports", report.orderId);
   await mkdir(uploadsDir, { recursive: true });
 
   const filePath = path.join(uploadsDir, "report.pdf");
