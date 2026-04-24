@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { enqueueJob } from "@/lib/queue";
 import { checkRateLimit } from "@/lib/ratelimit";
+import { createSession } from "@/lib/auth";
 
 const VALID_INPUT_TYPES = ["apn", "address"] as const;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,6 +43,9 @@ export async function POST(req: NextRequest) {
 
     // Enqueue the pipeline job so the report actually gets generated
     await enqueueJob(reportId);
+
+    // Free checkouts happen without prior auth, so establish a dashboard session now.
+    await createSession(email);
 
     return NextResponse.json({ reportId });
   } catch (err) {

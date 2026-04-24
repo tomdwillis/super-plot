@@ -60,15 +60,33 @@ export default function DashboardPage() {
       const res = await fetch(
         `/api/reports?email=${encodeURIComponent(emailToFetch)}`
       );
+      if (res.status === 401) {
+        throw new Error("Please use your secure email link to access reports.");
+      }
+      if (res.status === 403) {
+        throw new Error("This email does not match your signed-in session.");
+      }
       if (!res.ok) throw new Error("Failed to load reports");
       const data = await res.json();
       setReports(data.reports || []);
-    } catch {
-      setError("Could not load your reports. Please try again.");
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Could not load your reports. Please try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    const emailParam = new URLSearchParams(window.location.search).get("email");
+    if (!emailParam) return;
+    setEmail(emailParam);
+    setSubmittedEmail(emailParam);
+    fetchReports(emailParam);
+  }, [fetchReports]);
 
   // Auto-refresh in-progress reports every 15 seconds
   useEffect(() => {
